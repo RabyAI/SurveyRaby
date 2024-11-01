@@ -46,7 +46,7 @@ def write_subsection(topic, model, outline, subsection_len, rag_num, db, api_key
 def paras_args():
     parser = argparse.ArgumentParser(description='')
     parser.add_argument('--gpu',default='0', type=str, help='Specify the GPU to use')
-    parser.add_argument('--saving_path',default='./output/', type=str, help='Directory to save the output survey')
+    parser.add_argument('--saving_path',default='./output', type=str, help='Directory to save the output survey')
     parser.add_argument('--model',default='gpt-4o-2024-05-13', type=str, help='Model to use')
     parser.add_argument('--topic',default='', type=str, help='Topic to generate survey for')
     parser.add_argument('--section_num',default=7, type=int, help='Number of sections in the outline')
@@ -57,6 +57,8 @@ def paras_args():
     parser.add_argument('--api_key',default='', type=str, help='API key for the model')
     parser.add_argument('--db_path',default='./database', type=str, help='Directory of the database.')
     parser.add_argument('--embedding_model',default='nomic-ai/nomic-embed-text-v1', type=str, help='Embedding model for retrieval.')
+    parser.add_argument('--write_type',default='both', type=str, help='outline or content or both.')
+    parser.add_argument('--outline_file',default='', type=str, help='write content only based on the outline file.')
     args = parser.parse_args()
     return args
 
@@ -68,32 +70,63 @@ def main(args):
 
     if not os.path.exists(args.saving_path):
         os.mkdir(args.saving_path)
+    if not os.path.exists('./outline'):
+        os.mkdir('./outline')
 
-    outline_with_description, outline_wo_description = write_outline(args.topic, args.model, args.section_num, args.outline_reference_num, db, args.api_key, args.api_url)
+    if args.write_type == 'both':
+        outline_with_description, outline_wo_description = write_outline(args.topic, args.model, args.section_num, args.outline_reference_num, db, args.api_key, args.api_url)
+        raw_survey, raw_survey_with_references, raw_references, refined_survey, refined_survey_with_references, refined_references = write_subsection(args.topic, args.model, outline_with_description, args.subsection_len, args.rag_num, db, args.api_key, args.api_url)
+        file_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.md'
 
-    raw_survey, raw_survey_with_references, raw_references, refined_survey, refined_survey_with_references, refined_references = write_subsection(args.topic, args.model, outline_with_description, args.subsection_len, args.rag_num, db, args.api_key, args.api_url)
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(refined_survey_with_references)
+            f.flush()
+
+        print(f"Successfully wrote to {file_path}")
+
+        json_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.json'
+
+        with open(json_path, 'a+') as f:
+            save_dic = {}
+            save_dic['survey'] = refined_survey_with_references
+            save_dic['reference'] = refined_references
+            f.write(json.dumps(save_dic, indent=4))
+            f.flush()
+        
+        print(f"Successfully wrote to {json_path}")
     
-    # print(refined_survey_with_references)
+    elif args.write_type == 'outline':
+        outline_with_description, outline_wo_description = write_outline(args.topic, args.model, args.section_num, args.outline_reference_num, db, args.api_key, args.api_url)
+        outline_path = f'./outline/{time.strftime("%Y%m%d%H%M%S")}.md'
+        with open(outline_path, 'w', encoding='utf-8') as f:
+            f.write(outline_with_description)
+            f.flush()
+        print(f"Successfully wrote outline to {outline_path}")
 
-    file_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.md'
-
-    with open(file_path, 'w', encoding='utf-8') as f:
-        f.write(refined_survey_with_references)
-        f.flush()
-
-    print(f"Successfully wrote to {file_path}")
-
-    json_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.json'
-
-    with open(json_path, 'a+') as f:
-        save_dic = {}
-        save_dic['survey'] = refined_survey_with_references
-        save_dic['reference'] = refined_references
-        f.write(json.dumps(save_dic, indent=4))
-        f.flush()
+    elif args.write_type == 'content':
+        with open(f'./outline/{args.outline_file}', 'r', encoding='utf-8') as f:
+            outline_with_description = f.read()
+        raw_survey, raw_survey_with_references, raw_references, refined_survey, refined_survey_with_references, refined_references = write_subsection(args.topic, args.model, outline_with_description, args.subsection_len, args.rag_num, db, args.api_key, args.api_url)
     
-    print(f"Successfully wrote to {json_path}")
-    
+        file_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.md'
+
+        with open(file_path, 'w', encoding='utf-8') as f:
+            f.write(refined_survey_with_references)
+            f.flush()
+
+        print(f"Successfully wrote to {file_path}")
+
+        json_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.json'
+
+        with open(json_path, 'a+') as f:
+            save_dic = {}
+            save_dic['survey'] = refined_survey_with_references
+            save_dic['reference'] = refined_references
+            f.write(json.dumps(save_dic, indent=4))
+            f.flush()
+        
+        print(f"Successfully wrote to {json_path}")
+        
 if __name__ == '__main__':
 
     args = paras_args()

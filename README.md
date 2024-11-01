@@ -21,6 +21,8 @@ pip install -r requirements.txt
 
 ### Run
 
+Complete everything in one command:
+```
 python launch_survey.py --topic "Comparative Analysis: Prediction Markets vs Traditional Polling in the 2024 US Presidential Election" 
                --gpu 0
                --saving_path ./output
@@ -32,4 +34,40 @@ python launch_survey.py --topic "Comparative Analysis: Prediction Markets vs Tra
                --db_path ./database
                --embedding_model nomic-ai/nomic-embed-text-v1
                --api_url https://api.openai.com/v1/chat/completions
-               --api_key sk-xxxxxx 
+               --api_key sk-xxxxxx
+```
+
+Generate outline only:
+```
+python launch_survey.py --topic "Comparative Analysis: Prediction Markets vs Traditional Polling in the 2024 US Presidential Election" 
+               --gpu 0
+               --saving_path ./output
+               --model gpt-4o-2024-05-13
+               --section_num 7
+               --subsection_len 700
+               --rag_num 60
+               --outline_reference_num 1500
+               --db_path ./database
+               --embedding_model nomic-ai/nomic-embed-text-v1
+               --api_url https://api.openai.com/v1/chat/completions
+               --api_key sk-xxxxxx
+               --write_type outline
+```
+
+Generate content only:
+```
+python launch_survey.py --topic "Comparative Analysis: Prediction Markets vs Traditional Polling in the 2024 US Presidential Election" 
+               --gpu 0
+               --saving_path ./output
+               --model gpt-4o-2024-05-13
+               --section_num 7
+               --subsection_len 700
+               --rag_num 60
+               --outline_reference_num 1500
+               --db_path ./database
+               --embedding_model nomic-ai/nomic-embed-text-v1
+               --api_url https://api.openai.com/v1/chat/completions
+               --api_key sk-xxxxxx
+               --write_type content
+               --outline_file xxxxxx.md
+```
