@@ -71,3 +71,11 @@ python launch_survey.py --topic "Comparative Analysis: Prediction Markets vs Tra
                --write_type content
                --outline_file xxxxxx.md
 ```
+
+### Export
+
+For export to docx format, please install [Pandoc](https://pandoc.org/) and run
+
+```
+pandoc -s xxxxxx.md -o output.docx
+```
