@@ -72,15 +72,28 @@ def main(args):
     outline_with_description, outline_wo_description = write_outline(args.topic, args.model, args.section_num, args.outline_reference_num, db, args.api_key, args.api_url)
 
     raw_survey, raw_survey_with_references, raw_references, refined_survey, refined_survey_with_references, refined_references = write_subsection(args.topic, args.model, outline_with_description, args.subsection_len, args.rag_num, db, args.api_key, args.api_url)
+    
+    # print(refined_survey_with_references)
 
-    with open(f'{args.saving_path}/{args.topic}.md', 'a+') as f:
+    file_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.md'
+
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(refined_survey_with_references)
-    with open(f'{args.saving_path}/{args.topic}.json', 'a+') as f:
+        f.flush()
+
+    print(f"Successfully wrote to {file_path}")
+
+    json_path = f'{args.saving_path}/{time.strftime("%Y%m%d%H%M%S")}.json'
+
+    with open(json_path, 'a+') as f:
         save_dic = {}
         save_dic['survey'] = refined_survey_with_references
         save_dic['reference'] = refined_references
         f.write(json.dumps(save_dic, indent=4))
-
+        f.flush()
+    
+    print(f"Successfully wrote to {json_path}")
+    
 if __name__ == '__main__':
 
     args = paras_args()

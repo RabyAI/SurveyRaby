@@ -3,3 +3,4 @@ __pycache__
 database/
 survey/output/
 hf_cache/
+output/
