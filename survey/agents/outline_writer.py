@@ -108,9 +108,9 @@ class outlineWriter():
 
             prompt = self.__generate_prompt(ROUGH_OUTLINE_PROMPT, paras={'PAPER LIST': paper_texts, 'TOPIC': topic, 'SECTION NUM': str(section_num)})
             prompts.append(prompt)
-        self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
+        # self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
         outlines = self.api_model.batch_chat(text_batch=prompts, temperature=1)
-        self.output_token_usage += self.token_counter.num_tokens_from_list_string(outlines)
+        # self.output_token_usage += self.token_counter.num_tokens_from_list_string(outlines)
         return outlines
     
     def merge_outlines(self, topic, outlines):
@@ -144,10 +144,10 @@ class outlineWriter():
             outline_texts += f'---\noutline_id: {i}\n\noutline_content:\n\n{o}\n'
         outline_texts+='---\n'
         prompt = self.__generate_prompt(MERGING_OUTLINE_PROMPT, paras={'OUTLINE LIST': outline_texts, 'TOPIC':topic})
-        self.input_token_usage += self.token_counter.num_tokens_from_string(prompt)
+        # self.input_token_usage += self.token_counter.num_tokens_from_string(prompt)
 
         outline = self.api_model.chat(prompt, temperature=1)
-        self.output_token_usage += self.token_counter.num_tokens_from_string(outline)
+        # self.output_token_usage += self.token_counter.num_tokens_from_string(outline)
         return outline
     
     def generate_subsection_outlines(self, topic, section_outline, rag_num):
@@ -203,11 +203,11 @@ class outlineWriter():
             prompt = self.__generate_prompt(SUBSECTION_OUTLINE_PROMPT, paras={'OVERALL OUTLINE': section_outline,'SECTION NAME': section_name,\
                                                                           'SECTION DESCRIPTION':section_description,'TOPIC':topic,'PAPER LIST':paper_texts})
             prompts.append(prompt)
-        self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
+        # self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
 
         sub_outlines = self.api_model.batch_chat(prompts, temperature=1)
 
-        self.output_token_usage += self.token_counter.num_tokens_from_list_string(sub_outlines)
+        # self.output_token_usage += self.token_counter.num_tokens_from_list_string(sub_outlines)
         return sub_outlines
 
     def edit_final_outline(self, outline):
@@ -248,9 +248,9 @@ class outlineWriter():
         '''
 
         prompt = self.__generate_prompt(EDIT_FINAL_OUTLINE_PROMPT, paras={'OVERALL OUTLINE': outline})
-        self.input_token_usage += self.token_counter.num_tokens_from_string(prompt)
+        # self.input_token_usage += self.token_counter.num_tokens_from_string(prompt)
         outline = self.api_model.chat(prompt, temperature=1)
-        self.output_token_usage += self.token_counter.num_tokens_from_string(outline)
+        # self.output_token_usage += self.token_counter.num_tokens_from_string(outline)
         return outline.replace('<format>\n','').replace('</format>','')
  
     def __generate_prompt(self, template, paras):

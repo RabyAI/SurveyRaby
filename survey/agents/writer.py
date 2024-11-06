@@ -126,17 +126,17 @@ class subsectionWriter():
                                                                             'CITATION NUM':str(citation_num)})
             prompts.append(prompt)
 
-        self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
+        # self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
         contents = self.api_model.batch_chat(prompts, temperature=1)
-        self.output_token_usage += self.token_counter.num_tokens_from_list_string(contents)
+        # self.output_token_usage += self.token_counter.num_tokens_from_list_string(contents)
         contents = [c.replace('<format>','').replace('</format>','') for c in contents]
 
         prompts = []
         for content, paper_texts in zip(contents, paper_texts_l):
             prompts.append(self.__generate_prompt(CHECK_CITATION_PROMPT, paras={'SUBSECTION': content, 'TOPIC':topic, 'PAPER LIST':paper_texts}))
-        self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
+        # self.input_token_usage += self.token_counter.num_tokens_from_list_string(prompts)
         contents = self.api_model.batch_chat(prompts, temperature=1)
-        self.output_token_usage += self.token_counter.num_tokens_from_list_string(contents)
+        # self.output_token_usage += self.token_counter.num_tokens_from_list_string(contents)
         contents = [c.replace('<format>','').replace('</format>','') for c in contents]
     
         res_l[idx] = contents
@@ -194,9 +194,9 @@ class subsectionWriter():
 
         prompt = self.__generate_prompt(LCE_PROMPT, paras={'OVERALL OUTLINE': outline,'PREVIOUS': contents[0],\
                                                                           'FOLLOWING':contents[2],'TOPIC':topic,'SUBSECTION':contents[1]})
-        self.input_token_usage += self.token_counter.num_tokens_from_string(prompt)
+        # self.input_token_usage += self.token_counter.num_tokens_from_string(prompt)
         refined_content = self.api_model.chat(prompt, temperature=1).replace('<format>','').replace('</format>','')
-        self.output_token_usage += self.token_counter.num_tokens_from_string(refined_content)
+        # self.output_token_usage += self.token_counter.num_tokens_from_string(refined_content)
      #   print(prompt+'\n---------------------------------\n'+refined_content)
         res_l[idx] = refined_content
         return refined_content.replace('Here is the refined subsection:\n','')
